@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FoodieHub - Online Food Ordering & Delivery Platform</title>
+    <meta name="description" content="Online Food Ordering and Delivery Platform - Web Development Mini Project by A. Revanth Kumar (25CS003583). Features restaurant listings, menu browsing, cart calculations, and responsive Zomato/Swiggy-inspired UI." />
+    <meta property="og:title" content="FoodieHub - Online Food Ordering & Delivery" />
+    <meta property="og:description" content="Order food online from the best restaurants near you. Fast delivery, fresh food, and great offers." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="container navbar-container">
+        <!-- Logo Brand -->
+        <a href="index.html" class="nav-brand" aria-label="FoodieHub Homepage">
+          <span>Foodie<span class="hub">Hub</span></span>
+          <span class="nav-brand-tag">Academic</span>
+        </a>
+
+        <!-- Location Badge (Zomato/Swiggy Style) -->
+        <div class="nav-location" title="Delivery Location">
+          <span>📍</span>
+          <span>Deliver to: <strong>MVP Colony, Visakhapatnam</strong></span>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="nav-links">
+          <a href="index.html" class="nav-link active">Home</a>
+          <a href="#restaurants-section" class="nav-link">Restaurants</a>
+          <a href="cart.html" class="nav-link">
+            <span>Cart</span>
+            <span class="cart-badge" id="nav-cart-badge" style="display: none;">0</span>
+          </a>
+          <button class="theme-toggle-btn" aria-label="Toggle Light/Dark Theme" title="Toggle Theme">🌙</button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="container hero-content">
+          <h1 class="hero-title">Order food from the best restaurants near you</h1>
+          <p class="hero-subtitle">Explore curated menus, handpicked cuisines, and speedy doorstep delivery.</p>
+
+          <!-- Search Bar -->
+          <div class="hero-search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              id="hero-search-input"
+              class="hero-search-input"
+              placeholder="Search for restaurants, cuisines, or a dish (e.g. Biryani, Pizza, Burger)..."
+              autocomplete="off"
+            />
+            <button id="search-clear-btn" class="search-clear-btn" aria-label="Clear Search">✕</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Food Categories Section -->
+      <section class="categories-section">
+        <div class="container">
+          <div class="section-title-wrap">
+            <div>
+              <h2 class="section-title">Inspiration for your first order</h2>
+              <p class="section-subtitle">Click a category to filter your favorite cravings</p>
+            </div>
+          </div>
+          <!-- Category Track (populated dynamically by JS) -->
+          <div class="categories-track" id="categories-track"></div>
+        </div>
+      </section>
+
+      <!-- Restaurants Section -->
+      <section class="container" id="restaurants-section">
+        <!-- Filters & Sorting Bar -->
+        <div class="filters-bar">
+          <div class="filter-chips-group">
+            <button class="filter-chip" id="filter-rating-btn">
+              <span>★ 4.0+ Rating</span>
+            </button>
+            <button class="filter-chip" id="filter-veg-btn">
+              <span>🌱 Pure Veg</span>
+            </button>
+            <button class="filter-chip" id="filter-fast-btn">
+              <span>⚡ Fast Delivery (&lt;25m)</span>
+            </button>
+            <button class="reset-filters-btn" id="reset-filters-btn">Reset All</button>
+          </div>
+
+          <div class="sort-group">
+            <label for="sort-select" class="sort-label">Sort by:</label>
+            <select id="sort-select" class="sort-select">
+              <option value="relevance">Relevance</option>
+              <option value="rating-desc">Rating: High to Low</option>
+              <option value="delivery-asc">Delivery Time: Fastest</option>
+              <option value="cost-asc">Cost: Low to High</option>
+              <option value="cost-desc">Cost: High to Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+          <h2 class="section-title">Popular Restaurants</h2>
+          <span id="restaurant-count" style="font-size: 13px; color: var(--text-muted); font-weight: 600;">8 restaurants open</span>
+        </div>
+
+        <!-- Restaurants Grid (rendered by js/app.js) -->
+        <div class="restaurants-grid" id="restaurants-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer with College Mini Project Details -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-top">
+          <div class="footer-brand-col">
+            <a href="index.html" class="nav-brand">
+              <span>Foodie<span class="hub">Hub</span></span>
+            </a>
+            <p class="footer-brand-desc">
+              FoodieHub is a front-end online food ordering and delivery web application prototype inspired by platforms like Zomato and Swiggy.
+            </p>
+            <div class="academic-badge">
+              🎓 Academic Mini Project • Web Development
+            </div>
+          </div>
+
+          <div>
+            <h4 class="footer-col-title">Project Details</h4>
+            <ul class="footer-links">
+              <li><strong>Student:</strong> A. Revanth Kumar</li>
+              <li><strong>Roll No:</strong> 25CS003583</li>
+              <li><strong>Department:</strong> CSE (Cyber Security)</li>
+              <li><strong>Semester:</strong> 3rd Semester</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="footer-col-title">Technologies Used</h4>
+            <ul class="footer-links">
+              <li>HTML5 Semantic Markup</li>
+              <li>CSS3 & Responsive Grid</li>
+              <li>Vanilla JavaScript (ES6+)</li>
+              <li>Browser LocalStorage Persistence</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <span>&copy; 2026 FoodieHub. Built for Academic Web Development Mini Project.</span>
+          <span>No live payments or real backend — Sample Demonstration</span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

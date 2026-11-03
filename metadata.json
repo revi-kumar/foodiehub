@@ -1,0 +1,8 @@
+{
+  "name": "FoodieHub",
+  "description": "Online Food Ordering and Delivery Platform - Web Development Mini Project by A. Revanth Kumar (25CS003583). Features restaurant listings, menu browsing, cart calculations, and responsive Zomato/Swiggy-inspired UI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
