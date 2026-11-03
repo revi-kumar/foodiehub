@@ -17,6 +17,8 @@ export default defineConfig(() => {
           main: path.resolve(__dirname, 'index.html'),
           restaurant: path.resolve(__dirname, 'restaurant.html'),
           cart: path.resolve(__dirname, 'cart.html'),
+          partner: path.resolve(__dirname, 'partner.html'),
+          tracking: path.resolve(__dirname, 'order-tracking.html'),
         },
       },
     },

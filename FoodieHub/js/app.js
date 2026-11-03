@@ -907,7 +907,8 @@ function initCartPage() {
     const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'Cash on Delivery';
     const instructions = document.getElementById('delivery-instructions')?.value || 'None';
 
-    const orderData = {
+    // Create persistent order in FoodieDB database
+    const orderPayload = {
       orderId: 'FH-' + Math.floor(10000 + Math.random() * 90000),
       customerName: nameInput.value.trim(),
       customerPhone: phoneVal,
@@ -915,11 +916,21 @@ function initCartPage() {
       instructions: instructions,
       paymentMethod: paymentMethod,
       items: cart,
+      subtotal: subtotal,
+      deliveryFee: deliveryFee,
+      platformFee: platformFee,
+      taxes: taxes,
+      discount: discount,
       grandTotal: grandTotal,
-      orderTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      restaurantId: cart[0]?.restaurantId || 'mehfil-biryani',
+      restaurantName: cart[0]?.restaurantName || 'Mehfil Biryani & Kebabs'
     };
 
-    showOrderConfirmationModal(orderData);
+    const savedOrder = (typeof FoodieDB !== 'undefined')
+      ? FoodieDB.createOrder(orderPayload)
+      : { ...orderPayload, deliveryOtp: '4829' };
+
+    showOrderConfirmationModal(savedOrder);
   };
 
   renderCartPage();
@@ -941,14 +952,27 @@ function showOrderConfirmationModal(order) {
     <div class="order-modal">
       <div class="order-success-icon-wrap">✓</div>
       <h2 class="order-modal-title">Order Placed Successfully!</h2>
-      <p class="order-modal-subtitle">Your delicious meal is being prepared by the restaurant.</p>
+      <p class="order-modal-subtitle">Your order has been sent directly to the restaurant kitchen database.</p>
 
       <div class="order-id-badge">
         <span>Order Reference</span>
         <span class="tabular-nums" style="color: var(--primary);">${order.orderId}</span>
       </div>
 
-      <!-- Realistic Delivery Stepper Tracker -->
+      <!-- Prominent Delivery OTP Box -->
+      <div style="background: #f9f0ff; border: 2px dashed #b37feb; border-radius: var(--radius-md); padding: 14px; text-align: center; margin: 16px 0;">
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #722ed1; letter-spacing: 0.5px;">
+          🔐 Your Delivery Verification OTP
+        </div>
+        <div style="font-size: 28px; font-weight: 900; color: #722ed1; letter-spacing: 4px; margin: 6px 0;" class="tabular-nums">
+          ${order.deliveryOtp}
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted);">
+          Share this 4-digit code with your delivery partner to confirm handover.
+        </div>
+      </div>
+
+      <!-- Delivery Stepper -->
       <div class="order-status-steps">
         <div class="step-node completed">
           <div class="step-circle">1</div>
@@ -979,21 +1003,31 @@ function showOrderConfirmationModal(order) {
         </div>
         <div class="order-summary-row">
           <span>Estimated Delivery</span>
-          <strong style="color: var(--rating-green);">30 - 35 minutes</strong>
-        </div>
-        <div class="order-summary-row">
-          <span>Payment Method</span>
-          <span>${order.paymentMethod}</span>
+          <strong style="color: var(--rating-green);">25 - 30 minutes</strong>
         </div>
         <div class="order-summary-row">
           <span>Total Amount</span>
-          <span class="tabular-nums" style="font-size: 15px; color: var(--text-main);">₹${order.grandTotal}</span>
+          <span class="tabular-nums" style="font-size: 15px; color: var(--text-main);">₹${order.grandTotal} (${order.paymentMethod})</span>
         </div>
       </div>
 
-      <div class="order-modal-actions">
-        <button class="btn-secondary" onclick="window.print()">🖨️ Print Receipt</button>
-        <button class="btn-primary" style="flex: 1; justify-content: center;" onclick="handleFinishOrder()">Order More Food</button>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+        <a href="order-tracking.html?orderId=${order.orderId}" class="btn-primary" style="justify-content: center; padding: 12px;">
+          🛵 Track Order Live & View OTP Status →
+        </a>
+        
+        <div style="display: flex; gap: 10px;">
+          <a href="partner.html" target="_blank" class="btn-secondary" style="flex: 1; text-align: center; justify-content: center; display: inline-flex; align-items: center;">
+            🏪 Open Restaurant Portal
+          </a>
+          <button class="btn-secondary" onclick="window.print()" style="flex: 1;">
+            🖨️ Print Receipt
+          </button>
+        </div>
+
+        <button class="filter-chip" style="justify-content: center; padding: 10px; margin-top: 4px;" onclick="handleFinishOrder()">
+          ← Back to Homepage
+        </button>
       </div>
     </div>
   `;

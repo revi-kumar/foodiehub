@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Order Tracking & Delivery OTP - FoodieHub</title>
+    <meta name="description" content="Track your food order in real-time, view delivery partner location, and get your 4-digit delivery verification OTP." />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .tracking-page-wrap {
+        padding: 32px 0 60px 0;
+      }
+      .tracking-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 32px;
+        align-items: start;
+      }
+      @media (max-width: 900px) {
+        .tracking-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      .tracking-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+      }
+      .otp-display-card {
+        background: linear-gradient(135deg, rgba(114, 46, 209, 0.08) 0%, rgba(226, 55, 68, 0.08) 100%);
+        border: 2px dashed #b37feb;
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      [data-theme="dark"] .otp-display-card {
+        background: #1f172e;
+        border-color: #531dab;
+      }
+      .otp-digits-box {
+        display: inline-flex;
+        gap: 12px;
+        margin: 16px 0;
+      }
+      .otp-digit {
+        width: 48px;
+        height: 56px;
+        background: var(--bg-surface);
+        border: 2px solid #722ed1;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        font-weight: 800;
+        color: #722ed1;
+        box-shadow: var(--shadow-sm);
+      }
+      .status-hero-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        border-radius: var(--radius-md);
+        margin-bottom: 24px;
+        font-weight: 700;
+      }
+      .banner-placed {
+        background: #fffbe6;
+        color: #d48806;
+        border: 1px solid #ffe58f;
+      }
+      .banner-preparing {
+        background: #e6f7ff;
+        color: #096dd9;
+        border: 1px solid #91d5ff;
+      }
+      .banner-out {
+        background: #f9f0ff;
+        color: #722ed1;
+        border: 1px solid #d3adf7;
+      }
+      .banner-delivered {
+        background: var(--rating-green-bg);
+        color: var(--rating-green);
+        border: 1px solid rgba(36, 150, 63, 0.3);
+      }
+      .progress-stepper {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        position: relative;
+        margin: 32px 0 24px 0;
+      }
+      .progress-stepper::before {
+        content: '';
+        position: absolute;
+        top: 18px;
+        left: 36px;
+        right: 36px;
+        height: 4px;
+        background: var(--border-light);
+        z-index: 0;
+      }
+      .step-item {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100px;
+      }
+      .step-icon-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--bg-surface);
+        border: 3px solid var(--border-light);
+        color: var(--text-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        transition: var(--transition);
+      }
+      .step-item.active .step-icon-circle {
+        border-color: #096dd9;
+        color: #096dd9;
+        background: #e6f7ff;
+        transform: scale(1.1);
+      }
+      .step-item.completed .step-icon-circle {
+        border-color: var(--rating-green);
+        background: var(--rating-green);
+        color: #fff;
+      }
+      .step-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-subtle);
+      }
+      .step-item.active .step-title, .step-item.completed .step-title {
+        color: var(--text-main);
+      }
+      .step-time {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+      .timeline-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        border-left: 2px solid var(--border-light);
+        padding-left: 20px;
+        margin-left: 8px;
+      }
+      .timeline-item {
+        position: relative;
+      }
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -27px;
+        top: 4px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--primary);
+        border: 2px solid var(--bg-surface);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="container navbar-container">
+        <!-- Logo Brand -->
+        <a href="index.html" class="nav-brand" aria-label="FoodieHub Homepage">
+          <span>Foodie<span class="hub">Hub</span></span>
+          <span class="nav-brand-tag">Academic</span>
+        </a>
+
+        <!-- Location Badge -->
+        <div class="nav-location" title="Delivery Location">
+          <span>📍</span>
+          <span>Deliver to: <strong>MVP Colony, Visakhapatnam</strong></span>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="nav-links">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="index.html#restaurants-section" class="nav-link">Restaurants</a>
+          <a href="cart.html" class="nav-link">Cart</a>
+          <a href="partner.html" class="nav-link" style="color: var(--primary); font-weight: 700;">
+            🏪 Partner Portal
+          </a>
+          <button class="theme-toggle-btn" aria-label="Toggle Light/Dark Theme" title="Toggle Theme">🌙</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container tracking-page-wrap">
+      <div class="breadcrumb-bar">
+        <a href="index.html">← Back to Restaurants</a>
+        <span>/</span>
+        <span>Live Order Tracking</span>
+      </div>
+
+      <div id="tracking-content-area">
+        <!-- Rendered dynamically by script below -->
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom" style="padding-top: 0; border: none;">
+          <span>&copy; 2026 FoodieHub. Academic Mini Project by A. Revanth Kumar (25CS003583).</span>
+          <a href="partner.html" style="color: var(--primary); font-weight: 700;">Open Restaurant Partner Portal →</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let orderId = urlParams.get('orderId');
+
+        const contentArea = document.getElementById('tracking-content-area');
+
+        function renderTrackingView() {
+          const allOrders = FoodieDB.getAllOrders();
+          let order = null;
+
+          if (orderId) {
+            order = FoodieDB.getOrderById(orderId);
+          } else if (allOrders.length > 0) {
+            // Default to most recent order if no ID specified
+            order = allOrders[0];
+            orderId = order.orderId;
+          }
+
+          if (!order) {
+            contentArea.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h2 class="empty-title">Order Not Found</h2>
+                <p class="empty-desc">We couldn't find an order matching "${orderId || 'recent'}".</p>
+                <a href="index.html" class="btn-primary">Browse Restaurants & Place Order</a>
+              </div>
+            `;
+            return;
+          }
+
+          // Determine active stepper states
+          const isPlaced = true;
+          const isPreparing = order.status === 'PREPARING' || order.status === 'OUT_FOR_DELIVERY' || order.status === 'DELIVERED';
+          const isOut = order.status === 'OUT_FOR_DELIVERY' || order.status === 'DELIVERED';
+          const isDelivered = order.status === 'DELIVERED';
+
+          let bannerClass = 'banner-placed';
+          let bannerTitle = 'Order Placed & Queued';
+          let bannerDesc = 'Waiting for restaurant partner to confirm and start cooking.';
+
+          if (order.status === 'PREPARING') {
+            bannerClass = 'banner-preparing';
+            bannerTitle = 'Kitchen Cooking Food 👨‍🍳';
+            bannerDesc = 'The restaurant chef accepted your order and is cooking it right now.';
+          } else if (order.status === 'OUT_FOR_DELIVERY') {
+            bannerClass = 'banner-out';
+            bannerTitle = 'Out for Delivery 🛵';
+            bannerDesc = `Delivery partner ${order.deliveryPartner.name} is on the way to your address!`;
+          } else if (order.status === 'DELIVERED') {
+            bannerClass = 'banner-delivered';
+            bannerTitle = 'Delivered Successfully! 🎉';
+            bannerDesc = 'OTP verified. Food handed over to customer. Bon Appétit!';
+          }
+
+          contentArea.innerHTML = `
+            <div class="tracking-layout">
+              <!-- Left Column: Status, OTP, Stepper, Rider Info -->
+              <div class="tracking-left">
+                <!-- Status Banner -->
+                <div class="status-hero-banner ${bannerClass}">
+                  <div>
+                    <div style="font-size: 16px; font-weight: 800;">${bannerTitle}</div>
+                    <div style="font-size: 12px; font-weight: 500; opacity: 0.9; margin-top: 2px;">${bannerDesc}</div>
+                  </div>
+                  <div style="font-size: 13px; text-align: right;">
+                    <div>Order <strong>#${order.orderId}</strong></div>
+                    <div style="font-size: 11px; font-weight: 500;">${order.formattedTime}</div>
+                  </div>
+                </div>
+
+                <!-- Prominent Delivery OTP Card -->
+                <div class="otp-display-card" style="${isDelivered ? 'border-color: var(--rating-green); background: var(--rating-green-bg);' : ''}">
+                  ${!isDelivered ? `
+                    <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #722ed1;">
+                      🔐 Delivery Verification OTP
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                      Share this 4-digit secret code with your delivery partner to complete handover:
+                    </div>
+                    <div class="otp-digits-box">
+                      ${order.deliveryOtp.split('').map(digit => `
+                        <div class="otp-digit">${digit}</div>
+                      `).join('')}
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-subtle);">
+                      Do not share this OTP until the delivery partner arrives with your food package.
+                    </div>
+                  ` : `
+                    <div style="font-size: 32px; margin-bottom: 6px;">🎉</div>
+                    <div style="font-size: 18px; font-weight: 800; color: var(--rating-green);">
+                      Order Delivered Successfully!
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                      Delivery OTP (${order.deliveryOtp}) was verified by delivery partner.
+                    </p>
+                  `}
+                </div>
+
+                <!-- 4-Step Visual Progress Stepper -->
+                <div class="tracking-card">
+                  <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Delivery Status Progress</h3>
+                  
+                  <div class="progress-stepper">
+                    <div class="step-item ${isPlaced ? (order.status === 'PLACED' ? 'active' : 'completed') : ''}">
+                      <div class="step-icon-circle">${order.status === 'PLACED' ? '●' : '✓'}</div>
+                      <span class="step-title">Order Placed</span>
+                    </div>
+
+                    <div class="step-item ${isPreparing ? (order.status === 'PREPARING' ? 'active' : 'completed') : ''}">
+                      <div class="step-icon-circle">${order.status === 'PREPARING' ? '●' : (isOut ? '✓' : '2')}</div>
+                      <span class="step-title">Preparing</span>
+                    </div>
+
+                    <div class="step-item ${isOut ? (order.status === 'OUT_FOR_DELIVERY' ? 'active' : 'completed') : ''}">
+                      <div class="step-icon-circle">${order.status === 'OUT_FOR_DELIVERY' ? '●' : (isDelivered ? '✓' : '3')}</div>
+                      <span class="step-title">On the Way</span>
+                    </div>
+
+                    <div class="step-item ${isDelivered ? 'completed' : ''}">
+                      <div class="step-icon-circle">${isDelivered ? '✓' : '4'}</div>
+                      <span class="step-title">Delivered</span>
+                    </div>
+                  </div>
+
+                  <!-- Live Testing Partner Portal Callout -->
+                  <div style="background: var(--bg-surface-subtle); border-radius: var(--radius-md); padding: 14px 18px; margin-top: 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                    <div style="font-size: 13px;">
+                      <strong>🧪 Project Viva / Testing Note:</strong>
+                      <div style="font-size: 12px; color: var(--text-muted);">
+                        Open the Partner Portal in another tab to accept this order, cook it, and enter OTP <strong>${order.deliveryOtp}</strong>!
+                      </div>
+                    </div>
+                    <a href="partner.html" target="_blank" class="btn-primary" style="font-size: 12px; padding: 8px 14px;">
+                      Open Partner Portal ↗
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Delivery Partner Info -->
+                <div class="tracking-card">
+                  <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">Delivery Partner</h3>
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                      <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        🛵
+                      </div>
+                      <div>
+                        <div style="font-size: 14px; font-weight: 700;">${order.deliveryPartner.name}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">${order.deliveryPartner.vehicle}</div>
+                      </div>
+                    </div>
+                    <a href="tel:${order.deliveryPartner.phone}" class="filter-chip" style="color: var(--primary);">
+                      📞 Call Partner
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Order Activity Timeline -->
+                <div class="tracking-card">
+                  <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">Order Timeline Log</h3>
+                  <div class="timeline-list">
+                    ${order.timeline.map(item => `
+                      <div class="timeline-item">
+                        <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">
+                          ${item.title} <span style="font-size: 11px; font-weight: 500; color: var(--text-subtle); margin-left: 6px;">${item.timestamp}</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                          ${item.description}
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Order Details & Address -->
+              <div class="tracking-right">
+                <div class="summary-card">
+                  <h3 class="summary-title">Order Summary</h3>
+
+                  <div style="font-size: 13px; margin-bottom: 14px;">
+                    <div style="color: var(--text-muted);">Restaurant</div>
+                    <strong style="font-size: 15px; color: var(--text-main);">${order.restaurantName}</strong>
+                  </div>
+
+                  <div style="font-size: 13px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+                    <div style="color: var(--text-muted);">Delivery Address</div>
+                    <div style="margin-top: 2px; color: var(--text-main); line-height: 1.4;">${order.customerAddress}</div>
+                  </div>
+
+                  <!-- Items list -->
+                  <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border-light);">
+                    ${order.items.map(item => `
+                      <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                        <span>
+                          <span class="${item.isVeg ? 'veg-icon' : 'nonveg-icon'}"></span>
+                          ${item.quantity}x ${item.name}
+                        </span>
+                        <span class="tabular-nums font-weight: 600;">₹${item.price * item.quantity}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+
+                  <!-- Bill Calculation -->
+                  <div class="bill-rows" style="margin-bottom: 16px;">
+                    <div class="bill-row">
+                      <span>Item Subtotal</span>
+                      <span class="tabular-nums">₹${order.subtotal}</span>
+                    </div>
+                    <div class="bill-row">
+                      <span>Delivery Fee</span>
+                      <span class="tabular-nums">${order.deliveryFee === 0 ? 'FREE' : `₹${order.deliveryFee}`}</span>
+                    </div>
+                    <div class="bill-row">
+                      <span>Taxes & Charges</span>
+                      <span class="tabular-nums">₹${order.taxes}</span>
+                    </div>
+                    ${order.discount > 0 ? `
+                      <div class="bill-row discount-row">
+                        <span>Discount</span>
+                        <span class="tabular-nums">- ₹${order.discount}</span>
+                      </div>
+                    ` : ''}
+                    <div class="bill-divider"></div>
+                    <div class="bill-grand-total">
+                      <span>Total Paid</span>
+                      <span class="tabular-nums">₹${order.grandTotal}</span>
+                    </div>
+                  </div>
+
+                  <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+                    Payment Method: <strong>${order.paymentMethod}</strong>
+                  </div>
+
+                  <button class="btn-secondary" style="width: 100%; justify-content: center;" onclick="window.print()">
+                    🖨️ Print Receipt
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Real-time synchronization: When the restaurant updates status in partner.html
+        FoodieDB.subscribe((data) => {
+          renderTrackingView();
+        });
+
+        // Initial render
+        renderTrackingView();
+      })();
+    </script>
+  </body>
+</html>
